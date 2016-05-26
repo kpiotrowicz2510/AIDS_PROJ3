@@ -17,26 +17,52 @@ struct Sciezka {
 	int *moves;
 	bool taken;
 };
-Sciezka* drzewo;long int * tablica_num;
+Sciezka* drzewo; long int * tablica_num;
 int check(int start, int n) {
 	int ret = 0;
-	int jump = 1;
-	drzewo[start].moves[0] = drzewo[start].value;
-	for (int h = start; h > 0; h--) {
-		if (drzewo[h].childLeft == nullptr) {
-			drzewo[start].moves[jump] = drzewo[h].value;
-			h =0;
+	int jump = 0;
+	//drzewo[start].moves[0] = drzewo[start].value;
+	//for (int h = start; h > 0; h=drzewo[h].parent->number-1) {
+	Sciezka *a = &drzewo[start];
+	/*if (a->childLeft != nullptr) {
+		if (a->childRight != nullptr) {
+			if (a->down_value_l < a->down_value_r) {
+				a = a->childRight;
+			}else{
+				a = a->childLeft;
+			}
+		}else{
+			a = a->childLeft;
+		}
+	}*/
+	while(a!=nullptr){
+		if (a->childLeft == nullptr) {
+			drzewo[start].moves[jump] = a->value;			
+			a = nullptr;
 			continue;
 		}
-		if (drzewo[h].childRight == nullptr) {
-			drzewo[start].moves[jump] = drzewo[h].value+drzewo[h].down_value_l;
-			h = 0;
+		if (a->childRight == nullptr) {
+			jump++;
+			drzewo[start].moves[jump] = drzewo[start].moves[jump-1] + a->value + a->down_value_l;
+			a = a->childLeft;
+			//h = 0;
+			//jump++;
 			continue;
 		}
-		if (drzewo[h].childRight != nullptr && drzewo[h].childLeft != nullptr) {
-			drzewo[start].moves[jump] = drzewo[h].down_value_l + drzewo[h].down_value_r;
+		if (a->childRight != nullptr && a->childLeft != nullptr) {
+			drzewo[start].moves[0] = a->value;
+			jump++;
+			if (a->down_value_l < a->down_value_r) {
+				drzewo[start].moves[jump] = drzewo[start].moves[jump-1]+ a->value + a->down_value_r;
+				a = a->childRight;
+				//jump++;
+			}else{
+				drzewo[start].moves[jump] = drzewo[start].moves[jump-1] + a->value + a->down_value_l;
+				a = a->childLeft;
+				//jump++;
+			}
 		}
-		jump++;
+		//jump++;
 	}
 	return ret;
 }
@@ -59,8 +85,8 @@ int main()
 		else {
 			drzewo[i].parent = nullptr;
 		}
-	
-		//drzewo[i].number = n2;
+
+		drzewo[i].number = n2;
 		tablica_num[n2] = i;
 		drzewo[i].value = val;
 		drzewo[i].childLeft = nullptr;
@@ -68,8 +94,8 @@ int main()
 		drzewo[i].down_value_l = 0;
 		drzewo[i].down_value_r = 0;
 		drzewo[i].taken = false;
-		drzewo[i].moves = new int[m+1];
-		for (int ia = 0; ia < m+1; ia++) {
+		drzewo[i].moves = new int[m + 1];
+		for (int ia = 0; ia < m + 1; ia++) {
 			drzewo[i].moves[ia] = 0;
 		}
 	}
@@ -94,9 +120,9 @@ int main()
 
 
 	for (int i = 0; i < n; i++) {
-		if (i > 0) {
+		//if (i > 0) {
 			check(i, n);
-		}
+		//}
 		/*cout << drzewo[i].number << endl;
 		cout << drzewo[i].value << endl;
 		cout << drzewo[i].parent << endl;
@@ -104,10 +130,12 @@ int main()
 		cout << drzewo[i].childLeft << endl;
 		cout << drzewo[i].childRight << endl;
 		for (int h = 0; h < m; h++) {
-			cout << "moves:" << endl << h << ":" << drzewo[i].moves[h] << endl;
+		cout << "moves:" << endl << h << ":" << drzewo[i].moves[h] << endl;
 		}
 		cout << drzewo[i].down_value_l << endl;
-		cout << drzewo[i].down_value_r << endl	<< endl;*/
+		cout << drzewo[i].down_value_r << endl	<< endl;
+		int x;
+		cin >> x;*/
 	}
 
 
@@ -119,8 +147,9 @@ int main()
 
 	while (moves-- > 0) {
 		if (cnx == nullptr) {
-			//cnx = &drzewo[0];
+			cnx = &drzewo[0];
 			//drze
+			continue;
 		}
 
 		//max_val += (*cnx).value;
@@ -129,18 +158,19 @@ int main()
 		if ((*cnx).childLeft == nullptr && (*cnx).childRight == nullptr) {
 			max_val += (*cnx).value;
 			(*cnx).taken = true;
+			//moves--;
 			if (moves == 0) {
 				continue;
 			}
-			int mx = (*cnx).moves[moves];
+			int mx = 0;
 			int id = 0;
-			int h = n - 1;
+			int h = cnx->number - 2;
 			if ((*cnx).parent != nullptr) {
 				//h = tablica_num[(*(*cnx).parent).number-1];
 			}
 			for (int i = h; i > 1; i--) {
-				if ((drzewo[i]).taken == false) {
-					int mxx = drzewo[i].moves[moves];
+				if (drzewo[i].taken == false) {
+					int mxx = drzewo[i].moves[moves-1];
 					if (mxx > mx) {
 						mx = mxx;
 						id = i;
@@ -152,9 +182,10 @@ int main()
 			//max_val += (*cnx).value;
 			//continue;
 		}
-		
-		if((*cnx).childLeft==nullptr){
-			//cnx = nullptr;
+
+		if ((*cnx).childLeft == nullptr) {
+			cnx = cnx->parent;
+			moves++;
 			continue;
 		}
 		int* a = (*(*cnx).childLeft).moves;
@@ -171,18 +202,17 @@ int main()
 		if (left >= right) {
 			//max_val += (*cnx).value;
 			//(*cnx).taken = true;
-			cnx = (*cnx).childLeft;			
+			cnx = (*cnx).childLeft;
 		}
-		if (left < right) {		
+		if (left < right) {
 			//max_val += (*cnx).value;
 			//(*cnx).taken = true;
 			cnx = (*cnx).childRight;
 		}
-		max_val += (*cnx).value;
-		(*cnx).taken = true;
+		//max_val += (*cnx).value;
+		//(*cnx).taken = true;
 
 	}
 	cout << max_val << endl;
 	return 0;
 }
-
