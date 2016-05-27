@@ -32,5 +32,8 @@
     <ClCompile Include="AIDS_PROJ3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="36cpp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
