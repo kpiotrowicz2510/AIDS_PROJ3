@@ -115,14 +115,18 @@ int check(int start, int n) {
 }
 
 Sciezka *first;
-int* count(int i, int moves_left) {
-	Sciezka *sciezka = first;
+int* count(int i, int moves_left, Sciezka* sciezka, int moves) {
+	//Sciezka *sciezka = first;
 	int ilosc = 0;
 	int val = 0;
+	int gd = moves_left;
 	while (sciezka->childLeft != nullptr&&ilosc <= moves_left) {
 		if (sciezka->childRight != nullptr) {
-			if (sciezka->childLeft->moves[moves_left - ilosc] >= sciezka->childRight->moves[moves_left - ilosc]) {
-				sciezka->childLeft->moves[moves_left] = 0;
+			if (gd > sciezka->childLeft->max_moves) {
+				gd = sciezka->childLeft->max_moves;
+			}
+			if (sciezka->childLeft->moves[gd] >= sciezka->childRight->moves[gd]) {
+				sciezka->childLeft->moves[gd-1] -= sciezka->childLeft->value;
 				if (sciezka->childLeft->taken == false) {
 					sciezka = sciezka->childLeft;
 					val += sciezka->value;
@@ -137,14 +141,13 @@ int* count(int i, int moves_left) {
 					ilosc++;
 					sciezka->taken = true;
 				}
-
 				continue;
 			}
-			if (sciezka->childLeft->moves[moves_left - ilosc] < sciezka->childRight->moves[moves_left - ilosc]) {
-				sciezka->childRight->moves[moves_left] = 0;
+			if (sciezka->childLeft->moves[gd] < sciezka->childRight->moves[gd]) {
+				sciezka->childRight->moves[gd-1] -= sciezka->childRight->value;
 				sciezka = sciezka->childRight;
-				sciezka->moves[moves_left] = 0;
-				if (sciezka->taken == false) {
+				//sciezka->moves[moves_left] = 0;
+			if (sciezka->taken == false) {
 					val += sciezka->value;
 					ilosc++;
 					sciezka->taken = true;
@@ -159,12 +162,41 @@ int* count(int i, int moves_left) {
 				continue;
 			}
 		}
+		else {
+			//if (sciezka->childLeft->taken == false) {
+				sciezka->childLeft->moves[gd-1] -= sciezka->childLeft->value;
+				sciezka = sciezka->childLeft;
+				val += sciezka->value;
+				ilosc++;
+				sciezka->taken = true;
+				//sciezka = sciezka->childLeft;
+				//continue;
+			//}
+		}
 	}
 
-	if	(sciezka->childLeft == nullptr&&sciezka->childRight == nullptr&&sciezka->taken == false) {
-		val += sciezka->value;
-		ilosc++;
-		sciezka->taken = true;
+	if	(sciezka->childLeft == nullptr&&sciezka->childRight == nullptr) {
+		//val += sciezka->value;
+		//ilosc++;
+		//sciezka->taken = true;
+		int max_next = 0;
+		while (sciezka->parent != first) {
+			sciezka = sciezka->parent;
+			if (sciezka->childRight != nullptr) {
+				if (sciezka->childLeft->moves[moves - ilosc] >= sciezka->childRight->moves[moves - ilosc]) {
+					if (sciezka->childLeft->moves[moves - ilosc] >= max_next) {
+						first = sciezka->childLeft;
+						max_next = sciezka->childLeft->moves[moves - ilosc];
+					}
+				}
+				else {
+					if (sciezka->childRight->moves[moves - ilosc] >= max_next) {
+						first = sciezka->childRight;
+						max_next = sciezka->childRight->moves[moves - ilosc];
+					}
+				}
+			}
+		}
 		//sciezka = first;
 	}
 	int a[2];
@@ -202,7 +234,7 @@ int main()
 		drzewo[i].taken = false;
 		drzewo[i].moves = new int[m + 1];
 		for (int ia = 0; ia < m + 1; ia++) {
-			drzewo[i].moves[ia] = 0;
+			drzewo[i].moves[ia] = -1;
 		}
 		if (n1 == 1) {
 			first = &drzewo[i];
@@ -245,29 +277,31 @@ int main()
 		if (i > 0) {
 			check(i, n);
 		}
-	/*	cout << &drzewo[i] << endl;
-		cout << drzewo[i].number << endl;
-		cout << drzewo[i].value << endl;
-		cout << drzewo[i].parent << endl;
+	//cout << &drzewo[i] << endl;
+	//	cout << drzewo[i].number << endl;
+	//	cout << drzewo[i].value << endl;
+	//	cout << drzewo[i].parent << endl;
 
-		cout << drzewo[i].childLeft << endl;
-		cout << drzewo[i].childRight << endl;
-		for (int h = 0; h < m; h++) {
-			cout << "moves:" << endl << h << ":" << drzewo[i].moves[h] << endl;
-		}
-		cout << drzewo[i].down_value_l << endl;
-		cout << drzewo[i].down_value_r << endl << endl;*/
+	//	cout << drzewo[i].childLeft << endl;
+	//	cout << drzewo[i].childRight << endl;
+	//	for (int h = 0; h < m; h++) {
+	//		cout << "moves:" << endl << h << ":" << drzewo[i].moves[h] << endl;
+	//	}
+	//	cout << drzewo[i].down_value_l << endl;
+	//	cout << drzewo[i].down_value_r << endl << endl;
+	//	int x = 0;
+	//	cin >> x;
 	}
 
 
 	int cn = 0;
 	int max_val =first->value;
 	first->taken = true;
-	int moves = m;
+	int moves = m-1;
 	int moves_done = 0;
-	Sciezka *cnx = &drzewo[0];
+	Sciezka *cnx = first;
 	while (moves_done < moves) {
-		int* x = count(0, moves - moves_done-1);
+		int* x = count(0, moves - moves_done-1,cnx,moves);
 		moves_done += x[0];
 		max_val += x[1];
 	}
