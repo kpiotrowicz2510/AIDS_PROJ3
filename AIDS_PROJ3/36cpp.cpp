@@ -474,17 +474,34 @@ int main()
 		vec_sciezka.push_back(&drzewo[i]);
 		//sasiady[n2][n1] = &drzewo[i];
 	}
-	for (int i = 0; i < vec_sciezka.size(); i++) {
+	/*for (int i = 0; i < vec_sciezka.size(); i++) {
 		Sciezka* a = vec_sciezka[i];
 		for (int j = 0; j < vec_sciezka.size(); j++) {
 			if (j == i) { continue; }
-			if (a->number == vec_sciezka[j]->p_number || a->number == vec_sciezka[j]->number && a->value!= vec_sciezka[j]->value) {
+			if (a->number == vec_sciezka[j]->p_number  && a->value != vec_sciezka[j]->value || a->number == vec_sciezka[j]->p_number && a->value!= vec_sciezka[j]->value) {
 				vec_sciezka[j]->parent = a;
 				continue;
 			}
-			if (a->p_number == vec_sciezka[j]->number&& a->value != vec_sciezka[j]->value) {
-				a->parent = vec_sciezka[j];
-				continue;
+			
+		}
+	}*/
+	Sciezka *start = first;
+	while (start->p_number != n + 1 && start->number != n + 1) {
+		for (int j = 0; j < vec_sciezka.size(); j++) {
+			if (vec_sciezka[j]->number == start->number || vec_sciezka[j]->p_number == start->number) {
+				if (vec_sciezka[j]->value != start->value) {
+					if (start->childLeft == nullptr) {
+						start->childLeft->parent = start;
+						start->childLeft = vec_sciezka[j];
+						start->down_value_l = vec_sciezka[j]->value;
+						start = &drzewo[j];
+					}
+					else {
+						start->childRight->parent = start;
+						start->childRight = vec_sciezka[j];
+						start->down_value_r = vec_sciezka[j]->value;
+					}
+				}
 			}
 		}
 	}
