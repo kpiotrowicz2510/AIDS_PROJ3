@@ -119,16 +119,16 @@
 //		int n1, n2, val;
 //		cin >> n1 >> n2 >> val;
 //		if (i > 0) {
-//			drzewo[i].parent = &drzewo[tablica_num[n1]];
+//			drzewo[i]->parent = &drzewo[tablica_num[n1]];
 //		}
 //		else {
-//			drzewo[i].parent = nullptr;
+//			drzewo[i]->parent = nullptr;
 //		}
-//			drzewo[i].p_number = n1;
-//		drzewo[i].number = n2;
+//			drzewo[i]->p_number = n1;
+//		drzewo[i]->number = n2;
 //		tablica_num[n2] = i;
-//		drzewo[i].value = val;
-//		drzewo[i].childLeft = nullptr;
+//		drzewo[i]->value = val;
+//		drzewo[i]->childLeft = nullptr;
 //		drzewo[i].childRight = nullptr;
 //		drzewo[i].down_value_l = 0;
 //		drzewo[i].down_value_r = 0;
