@@ -5,10 +5,11 @@
 #include <vector>
 
 using namespace std;
-
+int maxKROKOW= 500;
 class Sciezka;
 struct Node {
 	Sciezka *s;
+	int value;
 	int number;
 	int p_number;
 };
@@ -16,13 +17,14 @@ vector<Node> nodes;
 class Sciezka {
 	
 public:
-	int p_number;
-	int number;
+	//int p_number;
+	//int number;
+	//int index;
 	int value;
 	Sciezka* parent;
 	Sciezka* childLeft;
 	Sciezka* childRight;
-	Sciezka* connections[3];
+	Node connections[3];
 	int down_value_l;
 	
 	int down_value_r;
@@ -32,31 +34,44 @@ public:
 	int max_moves;
 	int max_value;
 	Sciezka() {
+		value = 1;
+		childLeft = nullptr;
+		childRight = nullptr;
+		parent = nullptr;
+		counts = new int[maxKROKOW];
+		for (int i = 0; i < maxKROKOW; i++) {
+			counts[i] = 0;
+		}
 		for (int i = 0; i < 3; i++) {
-			connections[i] = nullptr;
+			connections[i].s = nullptr;
 		}
 	}
-	void addConnection(Sciezka* sc) {
+	void addConnection(Sciezka* sc, int weight) {
+		//if (sc->value == 0) {
+		//}
 		for (int i = 0; i < 3; i++) {
-			if (connections[i] == nullptr) {
-				connections[i] = sc;
+			if (connections[i].s == nullptr) {
+				connections[i].s = sc;
+				connections[i].value = weight;
 				break;
 			}
 		}
 	}
 	void setParent(Sciezka* parent) {
-		if (parent == nullptr) {
-			this->childRight = this->childLeft;
-			this->childLeft = this->parent;
-		}else{
-			if (parent == this->childLeft) {
+			if (parent == nullptr) {
+				this->childRight = this->childLeft;
 				this->childLeft = this->parent;
-				this->parent = parent;
-			}else if(parent==this->childRight){
-				this->childRight = this->parent;
-				this->parent = parent;
 			}
-		}
+			else {
+				if (parent == this->childLeft) {
+					this->childLeft = this->parent;
+					this->parent = parent;
+				}
+				else if (parent == this->childRight) {
+					this->childRight = this->parent;
+					this->parent = parent;
+				}
+			}
 	}
 };
 
@@ -66,20 +81,20 @@ Sciezka*** sasiady; Sciezka* drzewo; long int * tablica_num;
 vector<Sciezka*> vec_sciezka;
 
 
-
 void calculate_normal(Sciezka *a, int mm) {
+	//cout << "C:" << a->value;
 	a->counts[1] = a->value;
 	//a->moves[0].path = a;
 	a->counted = true;
 	if (a->childLeft->value >= a->childRight->value) {
-		a->counts[2] = a->value+a->down_value_l;
+		a->counts[2] = a->value+a->childLeft->value;
 		//a->moves[1].path = a->childLeft;
-		a->counts[3] = a->value + a->down_value_l + a->down_value_r;
+		a->counts[3] = a->value + a->childLeft->value + a->childRight->value;
 	}
 	else {
-		a->counts[2] = a->value+a->down_value_r;
+		a->counts[2] = a->value+a->childRight->value;
 		//a->moves[1].path = a->childRight;
-		a->counts[3] = a->value + a->down_value_l + a->down_value_r;
+		a->counts[3] = a->value + a->childLeft->value + a->childRight->value;
 	}
 	int max = 0;
 	int ac = 0;
@@ -421,7 +436,7 @@ int check(int start, int n) {
 //	return a;
 //}
 void connect2(Sciezka* ax, int n) {
-	int num = ax->number;
+	int num = 0;
 
 	for (int j = 0; j < nodes.size(); j++) {
 		if (nodes[j].s != nullptr&&nodes[j].number == num&&nodes[j].s != ax&&nodes[j].s->parent == nullptr) {
@@ -438,176 +453,83 @@ void connect2(Sciezka* ax, int n) {
 		}
 	}
 }
-void connect(Sciezka* parent, int n) {
-	int num = parent->number;
-	for (int j = 0; j < nodes.size(); j++) {
-		Sciezka * x = nodes[j].s;
-		if (x->taken == true|| nodes[j].s == parent) { continue; }
-		if ((x->p_number == parent->number || x->number == parent->number)){
-			x->parent = parent;
-			x->taken = true;
-			if (parent->childLeft == nullptr&&nodes[j].s!=parent) {
-				parent->childLeft = nodes[j].s;
-				//parent->childLeft->taken = true;
-				connect(parent->childLeft,n);
-				return;
-			}else if(parent->childRight==nullptr&&nodes[j].s != parent){
-				parent->childRight = nodes[j].s;
-				//parent->childRight->taken = true;
-				connect(parent->childRight,n);
-				return;
-			}
-			//connect(x,n);
-			//return;
+void connect(Sciezka* node, Sciezka* parent, int n) {
+	for (int i = 0; i < 3; i++) {
+		if (node->connections[i].s == nullptr) {
+			break;
+		}
+		if (node->connections[i].s != nullptr&&node->childLeft == nullptr && node->connections[i].s != parent) {
+			node->childLeft = node->connections[i].s;
+			node->childLeft->value = node->connections[i].value;
+				connect(node->childLeft, node, n);
+		}else if(node->connections[i].s != nullptr&&node->childRight == nullptr && node->connections[i].s != parent){
+			node->childRight = node->connections[i].s;
+			node->childRight->value = node->connections[i].value;
+			connect(node->childRight, node, n);
+		}else if(node->connections[i].s != nullptr&&node->connections[i].s == parent){
+			node->parent = node->connections[i].s;
 		}
 	}
-	/*for (int j = 0; j < nodes.size(); j++) {
-		if (nodes[j].s != nullptr&&nodes[j].p_number == num&&nodes[j].s!=ax&&nodes[j].s->parent==nullptr) {
-			nodes[j].s->parent = ax;
-			if (ax->childLeft == nullptr) {
-				ax->childLeft = nodes[j].s;
-			}else{
-				if (ax->childRight == nullptr) {
-					ax->childRight = nodes[j].s;
-				}
-			}
-			connect(nodes[j].s, n);
-			if (ax->childRight != nullptr) {
-				connect(ax->childRight, n);
-			}
-		}
-	}*/
-		//for (int j = 0; j < n; j++) {
-		//	if (ax == &drzewo[j]&&drzewo[j].parent!=nullptr) { continue; }
-		//	if (ax->number == drzewo[j].p_number) {
-		//		drzewo[j].parent = ax;
-		//		if (ax->childLeft == nullptr) {
-		//			ax->childLeft = &drzewo[j];
-		//			ax->down_value_l = drzewo[j].value;
-		//		}
-		//		else {
-		//			ax->childRight = &drzewo[j];
-		//			ax->down_value_r = drzewo[j].value;
-		//		}
-		//		//connect(&drzewo[j], n);
-		//	}
-		//	if (ax->number == drzewo[j].number&&ax!=&drzewo[j]&&ax->parent==nullptr) {
-		//		ax->parent = &drzewo[j];
-		//		if (drzewo[j].childLeft == nullptr) {
-		//			drzewo[j].childLeft = ax;
-		//			drzewo[j].down_value_l = ax->value;
-		//		}
-		//		else {
-		//			drzewo[j].childRight = ax;
-		//			drzewo[j].down_value_r = ax->value;
-		//		}
-		//	}
-		//}
 }
 Sciezka* root;
 int main()
 {
 	int n, m;
 	cin >> n >> m;
-	drzewo = new Sciezka[n];
+	maxKROKOW = m;
+	drzewo = new Sciezka[n+2];
 	tablica_num = new long int[n];
 	root = new Sciezka();
+	for (int j = 0; j <= n; j++) {
+	//	drzewo[j].index = j + 1;
+	}
 	for (int j = 0; j < n; j++) {
 		int n1, n2, val;
 		cin >> n1 >> n2 >> val;
 		int i = j;
-		//drzewo[i] = new Sciezka();
-		drzewo[i].counted = false;
+	
+		drzewo[n1-1].addConnection(&drzewo[n2-1],val);
+		drzewo[n2-1].addConnection(&drzewo[n1-1],val);
 		
-		drzewo[i].parent = nullptr;
-		
-		Node *a = new Node();
-		a->number = n2;
-		a->s = &drzewo[i];
-		//Node *b = new Node();
-		a->p_number = n1;
-		
-		nodes.push_back(*a);
-		//nodes.push_back(*b);
-		drzewo[i].number = n2;
-		drzewo[i].p_number = n1;
-		tablica_num[n2] = i;
-		drzewo[i].value = val;
-		drzewo[i].childLeft = nullptr;
-		drzewo[i].childRight = nullptr;
-		drzewo[i].down_value_l = 0;
-		drzewo[i].down_value_r = 0;
-		drzewo[i].max_value = 0;
-		drzewo[i].taken = false;
-		drzewo[n1 - 1].addConnection(&drzewo[n2 - 1]);
-		drzewo[n2 - 1].addConnection(&drzewo[n1 - 1]);
-		//drzewo[i].moves = new moveX[m + 1];
-		//drzewo[i].taken = new bool[m + 1];
-		drzewo[i].counts = new int[m + 1];
-		for (int ia = 0; ia < m + 1; ia++) {
-			drzewo[i].counts[ia] = 0;
-		//	drzewo[i].taken[ia] = false;
-		}
-		if (n1 == 1) {
-			first = &drzewo[i];
-		}
-		//vec_sciezka.push_back(&drzewo[i]);
-		//sasiady[n2][n1] = &drzewo[i];
 	}
 	
-	//connect(first, n);
-	//first->setParent(nullptr);
+	connect(&drzewo[0], nullptr, n);
 	
-	for (int i = 0; i < n; i++) {
-		
-		connect(&drzewo[i], n);
-			int x = 0;
-		
-		//first->childLeft->setParent(first);
-		//	connect2(&drzewo[i], n);
-	}
-	first->parent = nullptr;
-	/*for (int i = 0; i < n; i++) {
-		Sciezka a = drzewo[i];
-		for (int j = i; j < n; j++) {
-			if (drzewo[j].parent == &drzewo[i]) {
-				if (drzewo[i].childLeft == nullptr) {
-					drzewo[i].childLeft = &drzewo[j];
-					drzewo[i].down_value_l = drzewo[j].value;
-				}
-				else {
-					drzewo[i].childRight = &drzewo[j];
-					drzewo[i].down_value_r = drzewo[j].value;
-				}
-			}
+	drzewo[0].value =0;
+	Sciezka *a = nullptr;
+	for (int i = 0; i < n + 1; i++) {
+		if (drzewo[i].parent == &drzewo[0]) {
+			a = &drzewo[i];
+			a->parent = nullptr;
 		}
-	}*/
-	for (int i = 0; i<n; i++) {
-		cout << &drzewo[i] << endl;
-		cout << drzewo[i].p_number << "  " << drzewo[i].number << endl;
-		cout << drzewo[i].number << endl;
-		cout << drzewo[i].value << endl;
-		cout << drzewo[i].parent << endl;
-
-		cout << drzewo[i].childLeft << endl;
-		cout << drzewo[i].childRight << endl;
-		for (int h = 0; h < 3; h++) {
-			cout << "moves:" << endl << h << ":" << drzewo[i].connections[h] << endl;
-		}
-		cout << drzewo[i].down_value_l << endl;
-		cout << drzewo[i].down_value_r << endl << endl;
-		cout << endl << endl;
-		//int x = 0;
-		//cin >> x;
 	}
-	for (int i = n-1; i >= 0; i--) {
+	for (int i = n; i > 0; i--) {
 		//if (i > 0) {
 		//if (drzewo[i].childLeft == nullptr&&drzewo[i].childRight == nullptr&&drzewo[i].parent!=nullptr) {
-			count(&drzewo[i], m);
+		count(&drzewo[i], m);
 		//}
 		//}
 	}
-	Sciezka *a = first;
+	//for (int i = 0; i <= n; i++) {
+	//	cout << i << ":";
+	//	cout << &drzewo[i] << endl;
+	//	//cout << drzewo[i].p_number << "  " << drzewo[i].number << endl;
+	//	//cout << drzewo[i].number << endl;
+	//	cout << drzewo[i].value << endl;
+	//	cout << drzewo[i].parent << endl;
+
+	//	cout << drzewo[i].childLeft << endl;
+	//	cout << drzewo[i].childRight << endl;
+	//	for (int h = 0; h < m; h++) {
+	//		cout << "moves:" << endl << h << ":" << drzewo[i].counts[h] << endl;
+	//	}
+	//	//cout << drzewo[i].down_value_l << endl;
+	//	//cout << drzewo[i].down_value_r << endl << endl;
+	//	cout << endl << endl;
+	//	//int x = 0;
+	//	//cin >> x;
+	//}
+
 	
 	//calculate_all(first, m);
 	
@@ -629,7 +551,7 @@ int main()
 		}
 
 	}
-
+	//max = max + a->value;
 	int cn = 0;
 	//int max_val =first->value;
 	//first->taken = true;
