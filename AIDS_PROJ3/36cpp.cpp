@@ -41,9 +41,9 @@ public:
 		counts = new int[maxKROKOW];
 		for (int i = 0; i < maxKROKOW; i++) {
 			counts[i] = 0;
-		}
-		for (int i = 0; i < 3; i++) {
-			connections[i].s = nullptr;
+			if (i < 3) {
+				connections[i].s = nullptr;
+			}
 		}
 	}
 	void addConnection(Sciezka* sc, int weight) {
@@ -57,28 +57,11 @@ public:
 			}
 		}
 	}
-	void setParent(Sciezka* parent) {
-			if (parent == nullptr) {
-				this->childRight = this->childLeft;
-				this->childLeft = this->parent;
-			}
-			else {
-				if (parent == this->childLeft) {
-					this->childLeft = this->parent;
-					this->parent = parent;
-				}
-				else if (parent == this->childRight) {
-					this->childRight = this->parent;
-					this->parent = parent;
-				}
-			}
-	}
 };
 
 
 Sciezka *first;
 Sciezka*** sasiady; Sciezka* drzewo; long int * tablica_num;
-vector<Sciezka*> vec_sciezka;
 
 
 void calculate_normal(Sciezka *a, int mm) {
@@ -98,7 +81,7 @@ void calculate_normal(Sciezka *a, int mm) {
 	}
 	int max = 0;
 	int ac = 0;
-	for (size_t j = 4; j < mm; j++)
+	for (size_t j = 3; j < mm; j++)
 	{
 		for (size_t i = 0; i < j; i++)
 		{
@@ -252,222 +235,22 @@ void count(Sciezka* az, int mm) {
 		}
 	}
 }
-int check(int start, int n) {
-	//int ret = 0;
-	//int jump = 0;
-	////drzewo[start].moves[0] = drzewo[start].value;
-	////for (int h = start; h > 0; h=drzewo[h].parent->number-1) {
-	//Sciezka *a = &drzewo[start];
-	///*if (a->childLeft != nullptr) {
-	//if (a->childRight != nullptr) {
-	//if (a->down_value_l < a->down_value_r) {
-	//a = a->childRight;
-	//}else{
-	//a = a->childLeft;
-	//}
-	//}else{
-	//a = a->childLeft;
-	//}
-	//}*/
-	//while (a != nullptr) {
-	//	if (a->childRight == nullptr && a->childLeft == nullptr) {
-	//		jump++;
-	//		if (a->counted == false) {
-	//			int b = 0;
-	//			if (drzewo[start].moves[jump-1] != a->value) {
-	//				b = drzewo[start].moves[jump-1];
-	//				drzewo[start].moves[jump] = b + a->value;
-	//			}
-	//			
-	//			a->counted = true;
-	//		}
-	//		//drzewo[start].moves[jump] = drzewo[start].moves[jump - 1] + a->value;
-	//		break;
-	//	}
-	//	if (a->childLeft == nullptr) {
-	//		//jump++;
-	//		if (a->counted == false) {
-	//			int b = 0;
-	//			if (drzewo[start].moves[jump] != a->value) {
-	//				b = drzewo[start].moves[jump];
-	//				drzewo[start].moves[jump + 1] = b + a->value;
-	//			}
-	//			else {
-	//				drzewo[start].moves[jump] = a->value;
-	//			}
-	//			a->counted = true;
-	//		}
-	//		a = nullptr;
-	//		break;
-	//	}
-	//	if (a->childRight == nullptr) {
-	//		if (a->childLeft->counted == false){
-	//		jump++;
-	//		drzewo[start].moves[jump] = drzewo[start].moves[jump - 1] + a->down_value_l;
-	//		a = a->childLeft;
-	//		}
-	//		//h = 0;
-	//		//jump++;
-	//		continue;
-	//	}
-	//	if (a->childRight != nullptr && a->childLeft != nullptr) {
-	//		//drzewo[start].moves[0] = a->value;
-	//		jump++;
-	//		if (a->down_value_l < a->down_value_r){
-	//			if (a->childRight->counted == false) {
-	//				drzewo[start].moves[jump] = drzewo[start].moves[jump - 1] + a->down_value_r;
-	//				a->counted = true;
-	//				a = a->childLeft;
-	//			}
-	//			else {
-	//				a = a->childLeft;
-	//						}
-	//			continue;
-	//			//jump++;
-	//		}
-	//		if (a->down_value_l >= a->down_value_r){
-	//			if (a->childLeft->counted == false) {
-	//				drzewo[start].moves[jump] = drzewo[start].moves[jump - 1] + a->down_value_l;
-	//				a->counted = true;
-	//				a = a->childRight;
-	//			}
-	//			else {
-	//				a = a->childRight;
-	//				}
-	//			continue;
-	//			//jump++;
-	//		}
-	//	}
-	//	
-	//	//jump++;
-	//}
-	//drzewo[start].max_moves = jump;
-	return 0;
-}
 
-
-//int* count(int i, int moves_left, Sciezka* sciezka, int moves) {
-//	//Sciezka *sciezka = first;
-//	int ilosc = 0;
-//	int val = 0;
-//	int gd = moves_left;
-//	while (sciezka->childLeft != nullptr&&ilosc <= moves_left) {
-//		if (sciezka->childRight != nullptr) {
-//			if (gd > sciezka->childLeft->max_moves) {
-//				gd = sciezka->childLeft->max_moves;
-//			}
-//			if (sciezka->childLeft->moves[gd] >= sciezka->childRight->moves[gd]) {
-//				sciezka->childLeft->moves[gd-1] -= sciezka->childLeft->value;
-//				if (sciezka->childLeft->taken == false) {
-//					sciezka = sciezka->childLeft;
-//					val += sciezka->value;
-//					ilosc++;
-//					sciezka->taken = true;
-//					//sciezka = sciezka->childLeft;
-//					//continue;
-//				}
-//				else {
-//					sciezka = sciezka->childRight;
-//					val += sciezka->value;
-//					ilosc++;
-//					sciezka->taken = true;
-//				}
-//				continue;
-//			}
-//			if (sciezka->childLeft->moves[gd] < sciezka->childRight->moves[gd]) {
-//				sciezka->childRight->moves[gd-1] -= sciezka->childRight->value;
-//				sciezka = sciezka->childRight;
-//				//sciezka->moves[moves_left] = 0;
-//			if (sciezka->taken == false) {
-//					val += sciezka->value;
-//					ilosc++;
-//					sciezka->taken = true;
-//					//continue;
-//				}
-//				else {
-//					sciezka = sciezka->childLeft;
-//					val += sciezka->value;
-//					ilosc++;
-//					sciezka->taken = true;
-//				}
-//				continue;
-//			}
-//		}
-//		else {
-//			//if (sciezka->childLeft->taken == false) {
-//				sciezka->childLeft->moves[gd-1] -= sciezka->childLeft->value;
-//				sciezka = sciezka->childLeft;
-//				val += sciezka->value;
-//				ilosc++;
-//				sciezka->taken = true;
-//				//sciezka = sciezka->childLeft;
-//				//continue;
-//			//}
-//		}
-//	}
-//
-//	if	(sciezka->childLeft == nullptr&&sciezka->childRight == nullptr) {
-//		//val += sciezka->value;
-//		//ilosc++;
-//		//sciezka->taken = true;
-//		int max_next = 0;
-//		while (sciezka->parent != sciezka) {
-//			sciezka = sciezka->parent;
-//			if (sciezka->childRight != nullptr) {
-//				if (sciezka->childLeft->moves[moves - ilosc] >= sciezka->childRight->moves[moves - ilosc]) {
-//					if (sciezka->childLeft->moves[moves - ilosc] >= max_next) {
-//						first = sciezka->childLeft;
-//						max_next = sciezka->childLeft->moves[moves - ilosc];
-//					}
-//				}
-//				else {
-//					if (sciezka->childRight->moves[moves - ilosc] >= max_next) {
-//						first = sciezka->childRight;
-//						max_next = sciezka->childRight->moves[moves - ilosc];
-//					}
-//				}
-//			}
-//		}
-//		//sciezka = first;
-//	}
-//	int a[2];
-//	a[0] = ilosc;
-//	a[1] = val;
-//	return a;
-//}
-void connect2(Sciezka* ax, int n) {
-	int num = 0;
-
-	for (int j = 0; j < nodes.size(); j++) {
-		if (nodes[j].s != nullptr&&nodes[j].number == num&&nodes[j].s != ax&&nodes[j].s->parent == nullptr) {
-			nodes[j].s->parent = ax;
-			if (ax->childLeft == nullptr) {
-				ax->childLeft = nodes[j].s;
-			}
-			else {
-				if (ax->childRight == nullptr) {
-					ax->childRight = nodes[j].s;
-				}
-			}
-			connect2(nodes[j].s, n);
-		}
-	}
-}
-void connect(Sciezka* node, Sciezka* parent, int n) {
+void connect(Sciezka* sciezka, Sciezka* parent, int n) {
 	for (int i = 0; i < 3; i++) {
-		if (node->connections[i].s == nullptr) {
+		if (sciezka->connections[i].s == nullptr) {
 			break;
 		}
-		if (node->connections[i].s != nullptr&&node->childLeft == nullptr && node->connections[i].s != parent) {
-			node->childLeft = node->connections[i].s;
-			node->childLeft->value = node->connections[i].value;
-				connect(node->childLeft, node, n);
-		}else if(node->connections[i].s != nullptr&&node->childRight == nullptr && node->connections[i].s != parent){
-			node->childRight = node->connections[i].s;
-			node->childRight->value = node->connections[i].value;
-			connect(node->childRight, node, n);
-		}else if(node->connections[i].s != nullptr&&node->connections[i].s == parent){
-			node->parent = node->connections[i].s;
+		if (sciezka->connections[i].s != nullptr&&sciezka->childLeft == nullptr && sciezka->connections[i].s != parent) {
+			sciezka->childLeft = sciezka->connections[i].s;
+			sciezka->childLeft->value = sciezka->connections[i].value;
+				connect(sciezka->childLeft, sciezka, n);
+		}else if(sciezka->connections[i].s != nullptr&&sciezka->childRight == nullptr && sciezka->connections[i].s != parent){
+			sciezka->childRight = sciezka->connections[i].s;
+			sciezka->childRight->value = sciezka->connections[i].value;
+			connect(sciezka->childRight, sciezka, n);
+		}else if(sciezka->connections[i].s != nullptr&&sciezka->connections[i].s == parent){
+			sciezka->parent = sciezka->connections[i].s;
 		}
 	}
 }
@@ -475,19 +258,16 @@ Sciezka* root;
 int main()
 {
 	int n, m;
-	cin >> n >> m;
+	scanf_s("%i %i", &n, &m);
+	//cin >> n >> m;
 	maxKROKOW = m;
 	drzewo = new Sciezka[n+2];
 	tablica_num = new long int[n];
 	root = new Sciezka();
-	for (int j = 0; j <= n; j++) {
-	//	drzewo[j].index = j + 1;
-	}
 	for (int j = 0; j < n; j++) {
 		int n1, n2, val;
-		cin >> n1 >> n2 >> val;
-		int i = j;
-	
+		scanf_s("%i %i %i", &n1, &n2, &val);
+		//cin >> n1 >> n2 >> val;	
 		drzewo[n1-1].addConnection(&drzewo[n2-1],val);
 		drzewo[n2-1].addConnection(&drzewo[n1-1],val);
 		
@@ -497,18 +277,10 @@ int main()
 	
 	drzewo[0].value =0;
 	Sciezka *a = nullptr;
-	for (int i = 0; i < n + 1; i++) {
-		if (drzewo[i].parent == &drzewo[0]) {
-			a = &drzewo[i];
-			a->parent = nullptr;
-		}
-	}
+	drzewo[0].childLeft->parent = nullptr;
+	a = drzewo[0].childLeft;
 	for (int i = n; i > 0; i--) {
-		//if (i > 0) {
-		//if (drzewo[i].childLeft == nullptr&&drzewo[i].childRight == nullptr&&drzewo[i].parent!=nullptr) {
 		count(&drzewo[i], m);
-		//}
-		//}
 	}
 	//for (int i = 0; i <= n; i++) {
 	//	cout << i << ":";
